@@ -1,0 +1,18 @@
+FROM php:fpm-stretch
+
+RUN apt-get update && apt-get install -y
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        zlib1g-dev \
+        libxml2-dev \
+        libzip-dev \
+    && docker-php-ext-install \
+        zip \
+        intl \
+        mysqli \
+        pdo pdo_mysql
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin/ --filename=composer
+COPY app/ /var/www/app
+WORKDIR /var/www/app/
