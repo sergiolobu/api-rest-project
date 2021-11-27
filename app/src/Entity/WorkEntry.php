@@ -4,10 +4,13 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * @ORM\Table(name="app_work_entry")
  * @ORM\Entity(repositoryClass="App\Repository\WorkEntryRepository")
+ * @Gedmo\SoftDeleteable(fieldName="deletedAt", timeAware=false, hardDelete=true)
+ * @ORM\HasLifecycleCallbacks
  */
 class WorkEntry
 {
@@ -23,17 +26,17 @@ class WorkEntry
     /**
      * @var DateTime $createdAt
      *
-     * @ORM\Column(name="start_at", type="datetime", nullable=false)
+     * @ORM\Column(name="start_date", type="datetime", nullable=false)
      */
-    protected $startAt;
+    protected $startDate;
 
 
     /**
      * @var DateTime $createdAt
      *
-     * @ORM\Column(name="end_at", type="datetime", nullable=false)
+     * @ORM\Column(name="end_date", type="datetime", nullable=false)
      */
-    protected $endAt;
+    protected $endDate;
 
     /**
      * @var DateTime $createdAt
@@ -73,33 +76,33 @@ class WorkEntry
     /**
      * @return DateTime
      */
-    public function getStartAt(): DateTime
+    public function getStartDate(): DateTime
     {
-        return $this->startAt;
+        return $this->startDate;
     }
 
     /**
-     * @param DateTime $startAt
+     * @param DateTime $startDate
      */
-    public function setStartAt(DateTime $startAt): void
+    public function setStartDate(DateTime $startDate): void
     {
-        $this->startAt = $startAt;
+        $this->startDate = $startDate;
     }
 
     /**
      * @return DateTime
      */
-    public function getEndAt(): DateTime
+    public function getEndDate(): DateTime
     {
-        return $this->endAt;
+        return $this->endDate;
     }
 
     /**
-     * @param DateTime $endAt
+     * @param DateTime $endDate
      */
-    public function setEndAt(DateTime $endAt): void
+    public function setEndDate(DateTime $endDate): void
     {
-        $this->endAt = $endAt;
+        $this->endDate = $endDate;
     }
 
     /**
@@ -153,7 +156,7 @@ class WorkEntry
     /**
      * @return mixed
      */
-    public function getUser(): mixed
+    public function getUser()
     {
         return $this->user;
     }
@@ -161,7 +164,7 @@ class WorkEntry
     /**
      * @param mixed $user
      */
-    public function setUser(mixed $user): void
+    public function setUser(User $user)
     {
         $this->user = $user;
     }
