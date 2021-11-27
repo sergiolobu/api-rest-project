@@ -1,9 +1,7 @@
 <?php
 namespace App\Repository;
 
-use App\Entity\User;
 use App\Entity\WorkEntry;
-use DateTime;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,31 +18,8 @@ class WorkEntryRepository extends ServiceEntityRepository
      * @throws OptimisticLockException
      * @throws Exception
      */
-    public function save(User $user, $startDate, $endDate)
+    public function save(WorkEntry $workEntry)
     {
-        $workEntry = new WorkEntry();
-        $workEntry->setUser($user);
-        $workEntry->setStartDate(new DateTime($startDate));
-        $workEntry->setEndDate(new DateTime($endDate));
-
-        $this->getEntityManager()->persist($workEntry);
-        $this->getEntityManager()->flush();
-    }
-
-    /**
-     * @throws OptimisticLockException
-     * @throws Exception
-     */
-    public function update(WorkEntry $workEntry, $startDate, $endDate)
-    {
-        if (null !== $startDate){
-            $workEntry->setStartDate(new DateTime($startDate));
-        }
-
-        if (null !== $endDate){
-            $workEntry->setEndDate(new DateTime($endDate));
-        }
-
         $this->getEntityManager()->persist($workEntry);
         $this->getEntityManager()->flush();
     }

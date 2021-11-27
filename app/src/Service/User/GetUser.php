@@ -3,12 +3,12 @@
 namespace App\Service\User;
 
 use App\Entity\User;
+use App\Exception\UserNotFoundException;
 use App\Repository\UserRepository;
-use UserNotFoundException;
 
 class GetUser
 {
-    private $userRepository;
+    private UserRepository $userRepository;
 
     public function __construct(UserRepository $userRepository)
     {
