@@ -4,14 +4,15 @@ namespace App\Controller;
 
 use App\Repository\WorkEntryRepository;
 use App\Service\User\GetUser;
+use App\Service\WorkEntry\WorkEntryToArrayTransformer;
 use App\Service\WorkEntry\GetWorkEntry;
 use App\Service\WorkEntry\GetWorkEntriesByUserId;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use WorkEntryNotFoundException;
 
 class WorkEntryController extends AbstractController
 {
@@ -20,52 +21,52 @@ class WorkEntryController extends AbstractController
      */
     protected $workEntryRepository;
 
-    public function __construct(WorkEntryRepository $workEntryRepository)
-    {
+    /**
+     * @var WorkEntryToArrayTransformer
+     */
+    protected $workEntryToArrayTransformer;
+
+    public function __construct(
+        WorkEntryRepository $workEntryRepository,
+        WorkEntryToArrayTransformer $workEntryToArrayTransformer
+    ) {
         $this->workEntryRepository = $workEntryRepository;
+        $this->workEntryToArrayTransformer = $workEntryToArrayTransformer;
     }
 
     /**
      * @Route("/get/workentry/{id}", name="get_workentry", methods={"GET"})
-     * @throws WorkEntryNotFoundException
      */
     public function getWorkEntryByIdAction(string $id, GetWorkEntry $getWorkEntry): JsonResponse
     {
-        $workEntry = ($getWorkEntry)($id);
+        try {
+            $workEntry = ($getWorkEntry)($id);
+        } catch (Exception $exception) {
+            return new JsonResponse(['status' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
-        $data = [
-            'id' => $workEntry->getId(),
-            'userId' => $workEntry->getUser()->getId(),
-            'startAt' => $workEntry->getStartDate()->format('Y-m-d H:i:s'),
-            'endAt' => $workEntry->getEndDate()->format('Y-m-d H:i:s'),
-        ];
+        $workEntryArray = $this->workEntryToArrayTransformer->get($workEntry);
 
-        return new JsonResponse($data, Response::HTTP_OK);;
+        return new JsonResponse($workEntryArray, Response::HTTP_OK);;
     }
 
     /**
      * @Route("/get/workentry/user/{user}", name="get_workentry_by_user_id", methods={"GET"})
-     * @throws WorkEntryNotFoundException
      */
-    public function getWorkEntryByUserIdAction(string $user, GetWorkEntriesByUserId $getWorkEntriesByUserId): JsonResponse
-    {
-        $workEntry = ($getWorkEntriesByUserId)($user);
+    public function getWorkEntryByUserIdAction(
+        string $user,
+        GetWorkEntriesByUserId $getWorkEntriesByUserId
+    ): JsonResponse {
+        $workEntries = ($getWorkEntriesByUserId)($user);
 
-        $data = [];
+        $workEntryArray = [];
 
-        foreach ($workEntry as $item)
-        {
-            $data[] = [
-                'id' => $item->getId(),
-                'userId' => $item->getUser()->getId(),
-                'startAt' => $item->getStartDate()->format('Y-m-d H:i:s'),
-                'endAt' => $item->getEndDate()->format('Y-m-d H:i:s'),
-            ];
+        foreach ($workEntries as $workEntry) {
+            $workEntryArray[] = $this->workEntryToArrayTransformer->get($workEntry);
         }
 
-        return new JsonResponse($data, Response::HTTP_OK);;
+        return new JsonResponse($workEntryArray, Response::HTTP_OK);;
     }
-
 
     /**
      * @Route("/create/workentry", name="create_workentry", methods={"POST"})
@@ -79,8 +80,8 @@ class WorkEntryController extends AbstractController
             $dateStart = $data['startDate'];
             $dateEnd = $data['endDate'];
 
-            $this->workEntryRepository->save($user,$dateStart,$dateEnd);
-        }catch (\Exception $exception){
+            $this->workEntryRepository->save($user, $dateStart, $dateEnd);
+        } catch (Exception $exception) {
             return new JsonResponse(['status' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -101,8 +102,8 @@ class WorkEntryController extends AbstractController
         try {
             $workEntry = ($getWorkEntry)($id);
 
-            $this->workEntryRepository->update($workEntry,$endDate,$startDate);
-        }catch (\Exception $exception){
+            $this->workEntryRepository->update($workEntry, $endDate, $startDate);
+        } catch (Exception $exception) {
             return new JsonResponse(['status' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -116,13 +117,13 @@ class WorkEntryController extends AbstractController
     {
         $workEntry = $this->workEntryRepository->findOneBy(['id' => $id]);
 
-        if (!$workEntry){
+        if (!$workEntry) {
             return new JsonResponse(['status' => 'Work Entry not found'], Response::HTTP_BAD_REQUEST);
         }
 
         try {
             $this->workEntryRepository->delete($workEntry);
-        }catch (\Exception $exception){
+        } catch (Exception $exception) {
             return new JsonResponse(['status' => $exception->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 

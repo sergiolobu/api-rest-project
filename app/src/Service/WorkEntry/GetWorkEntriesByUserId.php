@@ -17,16 +17,9 @@ class GetWorkEntriesByUserId
         $this->workEntryRepository = $workEntryRepository;
     }
 
-    /**
-     * @throws WorkEntryNotFoundException
-     */
     public function __invoke(string $userId): array
     {
         $workEntry = $this->workEntryRepository->findBy(['user' => $userId]);
-
-        if (!$workEntry) {
-            WorkEntryNotFoundException::throwException();
-        }
 
         return $workEntry;
     }
