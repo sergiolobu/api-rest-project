@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -28,9 +29,10 @@ class User
     /**
      * @var string
      * @ORM\Column(name="name", type="string", nullable=false, length=50)
+     * @Assert\Type("string")
      * @Assert\NotBlank()
      */
-    protected $name;
+    protected string $name;
 
     /**
      * @var string
@@ -39,28 +41,28 @@ class User
      * @Assert\Email()
      * @Assert\NotBlank()
      */
-    protected $email;
+    protected string $email;
 
     /**
-     * @var DateTime $createdAt
-     *
+     * @var DateTime|null $createdAt
+     * @Assert\DateTime()
      * @ORM\Column(name="created_at", type="datetime", nullable=false)
      */
-    protected $createdAt;
+    protected ?DateTimeInterface $createdAt = null;
 
     /**
-     * @var DateTime $createdAt
-     *
+     * @var DateTime|null
+     * @Assert\DateTime()
      * @ORM\Column(name="updated_at", type="datetime", nullable=false)
      */
-    protected $updatedAt;
+    protected ?DateTimeInterface $updatedAt = null;
 
     /**
-     * @var DateTime $createdAt
-     *
+     * @var DateTime|null $createdAt
+     * @Assert\DateTime()
      * @ORM\Column(name="deleted_at", type="datetime", nullable=true)
      */
-    protected $deletedAt;
+    protected ?DateTimeInterface $deletedAt;
 
     /**
      * @ORM\OneToMany(targetEntity="WorkEntry", mappedBy="user")
@@ -177,5 +179,17 @@ class User
         if (null === $this->getCreatedAt()) {
             $this->setCreatedAt(new DateTime('now'));
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'email' => $this->getEmail(),
+        ];
     }
 }

@@ -8,7 +8,7 @@ use UserNotFoundException;
 
 class GetUsers
 {
-    private $userRepository;
+    private UserRepository $userRepository;
 
     public function __construct(UserRepository $userRepository)
     {

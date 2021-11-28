@@ -10,7 +10,7 @@ class GetWorkEntriesByUserId
     /**
      * @var WorkEntryRepository
      */
-    private $workEntryRepository;
+    private WorkEntryRepository $workEntryRepository;
 
     public function __construct(WorkEntryRepository $workEntryRepository)
     {
@@ -19,8 +19,6 @@ class GetWorkEntriesByUserId
 
     public function __invoke(string $userId): array
     {
-        $workEntry = $this->workEntryRepository->findBy(['user' => $userId]);
-
-        return $workEntry;
+        return $this->workEntryRepository->findBy(['user' => $userId]);
     }
 }

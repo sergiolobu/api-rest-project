@@ -2,8 +2,8 @@
 namespace App\Service\WorkEntry;
 
 use App\Entity\WorkEntry;
+use App\Exception\WorkEntryNotFoundException;
 use App\Repository\WorkEntryRepository;
-use WorkEntryNotFoundException;
 
 class GetWorkEntry
 {
@@ -18,6 +18,8 @@ class GetWorkEntry
     }
 
     /**
+     * @param string $id
+     * @return WorkEntry
      * @throws WorkEntryNotFoundException
      */
     public function __invoke(string $id): WorkEntry

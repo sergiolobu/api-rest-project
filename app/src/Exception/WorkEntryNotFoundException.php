@@ -1,5 +1,9 @@
 <?php
 
+namespace App\Exception;
+
+use Exception;
+
 class WorkEntryNotFoundException extends Exception
 {
     /**
